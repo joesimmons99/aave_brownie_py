@@ -16,5 +16,3 @@ def get_lending_pool():
     lending_pool_address = lending_pool_address_provider.getLendingPool()
     lending_pool = interface.ILendingPool(lending_pool_address)
     return lending_pool
-
-# this is a test line    
