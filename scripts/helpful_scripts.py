@@ -1,4 +1,4 @@
-from brownie import network, accounts, config
+from brownie import network, accounts, config, interface
 
 LOCAL_BLOCKCHAIN_ENVIRONMENTS = [
     "development",
