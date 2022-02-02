@@ -29,7 +29,8 @@ def main():
     # Now we will borrow DAI
     dai_address = config["networks"][network.show_active()]["dai_token"]
     borrow_tx = lending_pool.borrow(
-        dai_address, Web3.toWei(amount_dai_to_borrow, "ether"),
+        dai_address, 
+        Web3.toWei(amount_dai_to_borrow, "ether"),
         1,
         0,
         account.address,
@@ -38,12 +39,26 @@ def main():
     borrow_tx.wait(1)
     print("We borrowed some DAI!")
     get_borrowable_data(lending_pool, account)
+    # repay_all(amount, lending_pool, account)
+    print("You just deposited, borrowed, and repayed with Aave, Brownie, and Chainlink!")
+
+def repay_all(amount, lending_pool, account):
+    approve_erc20(Web3.toWei(amount, "ether"), lending_pool, config["networks"][network.show_active()]["dai_token"], account,)
+    repay_tx = lending_pool.repay(
+        config["networks"][network.show_active()]["dai_token"],
+        amount,
+        1,
+        account.address,
+        {"from": account},
+    )
+    repay_tx.wait(1)
+    print("Repayed!")
+
 
 def get_asset_price(price_feed_address):
     dai_eth_price_feed = interface.AggregatorV3Interface(price_feed_address)
-    latest_price = dai_eth_price_feed.latestRoundData()[1] # 1 is the position of the price feed in the getRoundData() function
-    converted_latest_price = Web3.fromWei(latest_price, "ether")
-    print(f"The DAI/ETH price is {converted_latest_price}")
+    latest_price = Web3.fromWei(dai_eth_price_feed.latestRoundData()[1], "ether") # 1 is the position of the price feed in the getRoundData() function
+    print(f"The DAI/ETH price is {latest_price}")
     return(float(latest_price))
 
 def get_borrowable_data(lending_pool, account):   
