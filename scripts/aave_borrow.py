@@ -23,6 +23,21 @@ def main():
     dai_eth_price = get_asset_price(
         config["networks"][network.show_active()]["dai_eth_price_feed"]
     )
+    # Convert borrowable DAI to ETH and multiply by 0.95% because we don't want to get too close to the liquidation threshold
+    amount_dai_to_borrow = (1 / dai_eth_price) * (borrowable_eth * 0.95)
+    print(f"We are going to borrow {amount_dai_to_borrow} DAI.")
+    # Now we will borrow DAI
+    dai_address = config["networks"][network.show_active()]["dai_token"]
+    borrow_tx = lending_pool.borrow(
+        dai_address, Web3.toWei(amount_dai_to_borrow, "ether"),
+        1,
+        0,
+        account.address,
+        {"from": account},
+    )
+    borrow_tx.wait(1)
+    print("We borrowed some DAI!")
+    get_borrowable_data(lending_pool, account)
 
 def get_asset_price(price_feed_address):
     dai_eth_price_feed = interface.AggregatorV3Interface(price_feed_address)
